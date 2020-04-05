@@ -1,0 +1,57 @@
+@startuml business-auth-ct
+header: v0.2 Proposal, <color:red>Not Implemented</color>
+title BusinessOwner Auth Flow -- Commercetools directly
+
+Actor BusinessOwner
+participant FE
+participant BE
+participant "commercetools" AS CT
+
+== Backend Auth ==
+
+BE -> CT+ : ""Authorization: Basic <clientCredentials>""\n""POST /oauth/token""\n"" ?grant_type=client_credentials""
+return ""<clientToken>"" with full scope
+
+
+== Registration ==
+
+BusinessOwner -> FE+ : Registration\nwith Email/Password
+FE -> BE+: ""POST /customer""\n""{email, password}""
+BE -> CT+: ""Authorization: Bearer <clientToken>""\n""POST /customers""\n"" {email, password}""
+return ""customer"" with ""<customer_id>""
+group Login
+BE -> CT+: ""Authorization: Basic <clientCredentials>""\n""POST oauth/wirvsvirus/customers/token""\n"" ?grant_type=password""\n"" &username=<email>""\n"" &password=<password>""
+return ""<customerToken>""
+return ""<customerToken>""
+end group
+return
+
+== Add Store ==
+
+rnote over FE: After Login. Holds ""<customerToken>""
+BusinessOwner -> FE+: Add Store
+FE -> BE+: ""Authorization: Bearer <customerToken>""\n""POST /store""\n"" {name, description,...}""
+BE -> CT+: ""Authorization: Basic <clientCredentials>""\n""POST oauth/introspect""\n"" ?token=<customerToken>""
+return ""{active: true,""\n""  scope: "...customer_id:<customer_id>"}""
+BE -> CT+: ""Authorization: Bearer <clientToken>""\n""POST /channels""\n"" {name, description, ownerRef: <customer_id>}""
+return
+return
+return
+
+== Add Product ==
+
+rnote over FE: After Login. Holds ""<customerToken>""
+
+BusinessOwner -> FE+: Add Product
+FE -> BE+: ""Authorization: Bearer <customerToken>""\n""POST /product {..}""
+BE -> CT+: ""Authorization: Basic <clientCredentials>""\n""POST oauth/introspect""\n"" ?token=<customerToken>""
+return ""{active: true,""\n""  scope: "...customer_id:<customer_id>"}""
+
+BE -> CT+: ""Authorization: Bearer <clientToken>""\n""GET /channels""\n"" ?query=ownerRef=<customer_id>""
+return ""<channel.id>""
+BE -> CT+: ""Authorization: Bearer <clientToken>""\n""POST /products""\n"" { channel=<channel.id>}""
+return
+return
+return
+
+@enduml
