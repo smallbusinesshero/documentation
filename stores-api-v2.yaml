@@ -1,0 +1,342 @@
+openapi: 3.0.1
+info:
+  title: PROD - Stores API
+  description: API to find a store nearby.
+  version: "1.0"
+servers:
+- url: //dds-wvv-backend.herokuapp.com/
+tags:
+- name: Products API
+  description: Products Controller
+- name: Stores API
+  description: Stores Controller
+- name: basic-error-controller
+  description: Basic Error Controller
+paths:
+  /products/:
+    get:
+      tags:
+      - Products API
+      summary: get all products for one specific store
+      operationId: getProductsByStoreIdUsingGET
+      parameters:
+      - name: storeId
+        in: query
+        description: storeId
+        required: true
+        allowEmptyValue: false
+        schema:
+          type: string
+        example: ddf24dc6-1a2d-4391-8f34-c5c322b21c1e
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        500:
+          description: An unexpected error occurred
+          content: {}
+      deprecated: false
+  /products/{id}:
+    get:
+      tags:
+      - Products API
+      summary: get one specific product by ID
+      operationId: getProductByIdUsingGET
+      parameters:
+      - name: id
+        in: path
+        description: id
+        required: true
+        schema:
+          type: string
+        example: 885dfe52-c401-42fd-bf8d-80d6b7c80dd2
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        500:
+          description: An unexpected error occurred
+          content: {}
+      deprecated: false
+  /stores/:
+    get:
+      tags:
+      - Stores API
+      summary: get stores / or filter by query
+      operationId: getStoresByQueryUsingGET
+      parameters:
+      - name: neighborhood
+        in: query
+        description: id
+        allowEmptyValue: false
+        schema:
+          type: string
+        example: Neukölln
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Store'
+        500:
+          description: An unexpected error occurred
+          content: {}
+      deprecated: false
+    post:
+      tags:
+      - Stores API
+      summary: Create store
+      description: Creates a new store.
+      security: 
+        - basicAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Store'
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Store'
+        500:
+          description: An unexpected error occurred
+          content: {}
+      deprecated: false
+  /stores/{id}:
+    get:
+      tags:
+      - Stores API
+      summary: get a specific store by ID
+      operationId: getStoreByIdUsingGET
+      parameters:
+      - name: id
+        in: path
+        description: id
+        required: true
+        schema:
+          type: string
+        example: ddf24dc6-1a2d-4391-8f34-c5c322b21c1e
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Store'
+        500:
+          description: An unexpected error occurred
+          content: {}
+      deprecated: false
+components:
+  schemas:
+    Address:
+      title: Address
+      type: object
+      properties:
+        city:
+          type: string
+        country:
+          type: string
+          description: Alpha-2
+        id:
+          type: string
+        postalCode:
+          type: string
+        region:
+          type: string
+        state:
+          type: string
+        streetName:
+          type: string
+        streetNumber:
+          type: string
+    Attribute:
+      title: Attribute
+      type: object
+      properties:
+        name:
+          type: string
+    GeoJSON:
+      title: GeoJSON
+      type: object
+      discriminator:
+        propertyName: type
+    Image:
+      title: Image
+      type: object
+      properties:
+        dimensions:
+          $ref: '#/components/schemas/ImageDimensions'
+        label:
+          type: string
+        url:
+          type: string
+    ImageDimensions:
+      title: ImageDimensions
+      type: object
+      properties:
+        h:
+          type: integer
+          format: int32
+        w:
+          type: integer
+          format: int32
+    Price:
+      title: Price
+      type: object
+      properties:
+        currencyCode:
+          type: string
+        value:
+          type: number
+    Product:
+      title: Product
+      type: object
+      properties:
+        description:
+          $ref: '#/components/schemas/LocalizedString'
+        id:
+          type: string
+        masterVariant:
+          $ref: '#/components/schemas/ProductVariant'
+        name:
+          $ref: '#/components/schemas/LocalizedString'
+        price:
+          $ref: '#/components/schemas/Price'
+        slug:
+          $ref: '#/components/schemas/LocalizedString'
+      example:
+        id: 6a19bf78-dce2-4830-845f-b029ada5472e
+        name:
+          de_DE: 2x kleine Hamamtücher 50x90cm
+        description:
+          de_DE: |-
+            Du bekommst 2x kleine Hamamtücher 50x90cm aus 100% Baumwolle perfekt im Bad oder Küche
+            Voraussichtliche Lieferung: ab sofort
+        slug:
+          en_US: 2-hamam-50-90cm-rot-weiss
+          de_DE: 2x-kleine-hamamtuecher-50x90cm
+        price:
+          value: 25
+          currencyCode: EUR
+        masterVariant:
+          assets: []
+          attributes: []
+          id: 1
+          images:
+          - url: https://7cbf5172f31e91cb7a5d-d8e96be60ea1fd7ad98fb07a482142ee.ssl.cf3.rackcdn.com/2-hamam-50-90cm-rot--q9KcG8UT.jpg
+            dimensions:
+              w: 566
+              h: 566
+            label: 2 Hamamtücher 50 x 90cm
+          key: 2-hamam-50-90cm-rot-weiss
+          sku: 2-hamam-50-90cm-rot-weiss
+    ProductVariant:
+      title: ProductVariant
+      type: object
+      properties:
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attribute'
+        id:
+          type: integer
+          format: int32
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/Image'
+        sku:
+          type: string
+    LocalizedString:
+      title: LocalizedString
+      type: object
+    Store:
+      title: Store
+      type: object
+      properties:
+        address:
+          $ref: '#/components/schemas/Address'
+        contact:
+          type: string
+        description:
+          $ref: '#/components/schemas/LocalizedString'
+        email:
+          type: string
+        geoLocation:
+          $ref: '#/components/schemas/GeoJSON'
+        homepage:
+          type: string
+        id:
+          type: string
+        name:
+          $ref: '#/components/schemas/LocalizedString'
+        neighborhood:
+          type: array
+          items:
+            type: string
+        phone:
+          type: string
+        profileImageURL:
+          type: string
+        profileVideoURL:
+          type: string
+        shopOwnerImage:
+          type: string
+        shopOwnerName:
+          type: string
+      example:
+        id: c3d6517f-b285-4a9e-b650-345c850bb01c
+        name:
+          de_DE: Agas Own 2
+        description:
+          de_DE: "\"Agas Own 2\" in Berlin Kreuzberg am Südstern. Erlebe einen Traum\
+            \ von Vielfalt aus dem Raum Asien im Bereich: Wohnaccessoires, ein Raum\
+            \ der Begegnung. \n\nHallo liebe Leute, Ihr seid auf mein bereits bestehendes\
+            \ Projekt/Ladengeschäft aufmerksam geworden. Ich betreibe seit über einem\
+            \ Jahr in Berlin-Kreuzberg am Südstern ein Ladengeschäft für Wohnaccessoires\
+            \ aus der Türkei, Thailand, Indonesien, Indien. Ich wohne selber seit\
+            \ einigen Jahren in der Körtestraße. Deshalb liegen mir als gebürtigem\
+            \ Berliner und Kreuzberger der Zusammenhalt im Kiez, der Austausch von\
+            \ Anliegen und die Mitmenschen, die ich in meinem Geschäft täglich antreffe,\
+            \ am Herzen."
+        address:
+          country: DE
+          streetName: Körtestraße
+          streetNumber: "34"
+          postalCode: "10967"
+          city: Berlin
+          state: ""
+        neighborhood:
+        - Kreuzberg
+        - Neukölln
+        - Körtekiez
+        geoLocation:
+          type: Point
+          coordinates:
+          - 13.408134
+          - 52.489908
+        profileImageURL: https://7cbf5172f31e91cb7a5d-d8e96be60ea1fd7ad98fb07a482142ee.ssl.cf3.rackcdn.com/store-front-X8l4AvUY.jpg
+        profileVideoURL: https://youtu.be/PBkb2mzbqKE
+        shopOwnerImage: https://drive.google.com/file/d/1Ls5Yjc760oEfnibC9Xv29OtALtmV_Ss4/view?usp=sharing
+        shopOwnerName: Oskar Fleer
+        phone: 030 98388469
+        homepage: https://www.startnext.com/agas-own-2
+  securitySchemes:
+    basicAuth:     # <-- arbitrary name for the security scheme
+      type: http
+      scheme: basic
