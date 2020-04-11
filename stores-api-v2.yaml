@@ -104,7 +104,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Store'
+              $ref: '#/components/schemas/StoreDraft'
       responses:
         200:
           description: ok
@@ -310,6 +310,51 @@ components:
       title: LocalizedString
       type: object
     Store:
+      allOf:
+      - $ref: '#/components/schemas/StoreDraft'
+      - title: Store
+        type: object
+        properties:
+          id:
+            type: string
+        example:
+          id: c3d6517f-b285-4a9e-b650-345c850bb01c
+          name:
+            de_DE: Agas Own 2
+          description:
+            de_DE: "\"Agas Own 2\" in Berlin Kreuzberg am Südstern. Erlebe einen Traum\
+              \ von Vielfalt aus dem Raum Asien im Bereich: Wohnaccessoires, ein Raum\
+              \ der Begegnung. \n\nHallo liebe Leute, Ihr seid auf mein bereits bestehendes\
+              \ Projekt/Ladengeschäft aufmerksam geworden. Ich betreibe seit über einem\
+              \ Jahr in Berlin-Kreuzberg am Südstern ein Ladengeschäft für Wohnaccessoires\
+              \ aus der Türkei, Thailand, Indonesien, Indien. Ich wohne selber seit\
+              \ einigen Jahren in der Körtestraße. Deshalb liegen mir als gebürtigem\
+              \ Berliner und Kreuzberger der Zusammenhalt im Kiez, der Austausch von\
+              \ Anliegen und die Mitmenschen, die ich in meinem Geschäft täglich antreffe,\
+              \ am Herzen."
+          address:
+            country: DE
+            streetName: Körtestraße
+            streetNumber: "34"
+            postalCode: "10967"
+            city: Berlin
+            state: ""
+          neighborhood:
+          - Kreuzberg
+          - Neukölln
+          - Körtekiez
+          geoLocation:
+            type: Point
+            coordinates:
+            - 13.408134
+            - 52.489908
+          profileImageURL: https://7cbf5172f31e91cb7a5d-d8e96be60ea1fd7ad98fb07a482142ee.ssl.cf3.rackcdn.com/store-front-X8l4AvUY.jpg
+          profileVideoURL: https://youtu.be/PBkb2mzbqKE
+          shopOwnerImage: https://drive.google.com/file/d/1Ls5Yjc760oEfnibC9Xv29OtALtmV_Ss4/view?usp=sharing
+          shopOwnerName: Oskar Fleer
+          phone: 030 98388469
+          homepage: https://www.startnext.com/agas-own-2
+    StoreDraft:
       title: Store
       type: object
       properties:
@@ -324,8 +369,6 @@ components:
         geoLocation:
           $ref: '#/components/schemas/GeoJSON'
         homepage:
-          type: string
-        id:
           type: string
         name:
           $ref: '#/components/schemas/LocalizedString'
@@ -344,7 +387,6 @@ components:
         shopOwnerName:
           type: string
       example:
-        id: c3d6517f-b285-4a9e-b650-345c850bb01c
         name:
           de_DE: Agas Own 2
         description:
