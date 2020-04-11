@@ -66,6 +66,43 @@ paths:
           description: An unexpected error occurred
           content: {}
       deprecated: false
+  /products/{id}/images:
+    post:
+      tags:
+      - Products API
+      summary: Upload Product image
+      description: Uploads the given image to commercetools and adds it to the product
+      security: 
+        - basicAuth: []
+      parameters:
+      - name: id
+        in: path
+        description: id of the product
+        required: true
+        schema:
+          type: string
+        example: 885dfe52-c401-42fd-bf8d-80d6b7c80dd2
+      requestBody:
+        content:
+            # a binary file of type png or jpeg
+          'image/jpeg':
+            schema:
+              type: string
+              format: binary
+          'image/png':
+            schema:
+              type: string
+              format: binary        
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        500:
+          description: An unexpected error occurred
+          content: {}
   /stores/:
     get:
       tags:
@@ -185,6 +222,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Store'
+  /stores/{id}/products:
+    post:
+      tags:
+      - Stores API
+      - Products API
+      summary: Create a new product for the store
+      security: 
+      - basicAuth: []
+      parameters:
+      - name: id
+        in: path
+        description: id
+        required: true
+        schema:
+          type: string
+        example: ddf24dc6-1a2d-4391-8f34-c5c322b21c1e
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductDraft'
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        500:
+          description: An unexpected error occurred
+          content: {}
 components:
   schemas:
     Address:
@@ -289,6 +357,31 @@ components:
             label: 2 Hamamtücher 50 x 90cm
           key: 2-hamam-50-90cm-rot-weiss
           sku: 2-hamam-50-90cm-rot-weiss
+    ProductDraft:
+      title: ProductDraft
+      type: object
+      properties:
+        description:
+          $ref: '#/components/schemas/LocalizedString'
+        name:
+          $ref: '#/components/schemas/LocalizedString'
+        price:
+          $ref: '#/components/schemas/Price'
+        slug:
+          $ref: '#/components/schemas/LocalizedString'
+      example:
+        name:
+          de_DE: 2x kleine Hamamtücher 50x90cm
+        description:
+          de_DE: |-
+            Du bekommst 2x kleine Hamamtücher 50x90cm aus 100% Baumwolle perfekt im Bad oder Küche
+            Voraussichtliche Lieferung: ab sofort
+        slug:
+          en_US: 2-hamam-50-90cm-rot-weiss
+          de_DE: 2x-kleine-hamamtuecher-50x90cm
+        price:
+          value: 25
+          currencyCode: EUR    
     ProductVariant:
       title: ProductVariant
       type: object
