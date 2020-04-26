@@ -287,8 +287,23 @@ components:
     GeoJSON:
       title: GeoJSON
       type: object
-      discriminator:
-        propertyName: type
+      properties:
+        type:
+          type: string
+          enum:
+          - Point
+        coordinates:
+          type: array
+          description: Array containing longitudea and latitude
+          items:
+            type: number
+          minItems: 2
+          maxItems: 2
+      example:
+        type: Point
+        coordinates:
+        - 13.408134
+        - 52.489908
     Image:
       title: Image
       type: object
@@ -302,6 +317,7 @@ components:
     ImageDimensions:
       title: ImageDimensions
       type: object
+      description: Dimensions of the original image. This can be used by your application for example to determine whether the image is large enough to display a zoom view.
       properties:
         h:
           type: integer
@@ -403,7 +419,14 @@ components:
           type: string
     LocalizedString:
       title: LocalizedString
+      description: |
+        A localized string is a JSON object where the keys are of IETF language tag,
+        and the values the corresponding strings used for that language.
+        For SBH, currently only `de-DE` is used.
       type: object
+      example:
+        de-DE: Deutscher Text
+        en-US: American English text
     Store:
       title: Store
       type: object
