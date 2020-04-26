@@ -4,7 +4,8 @@ info:
   description: API to find a store nearby.
   version: "1.0"
 servers:
-- url: //dds-wvv-backend.herokuapp.com/
+- url: https://dds-wvv-backend.herokuapp.com/
+- url: https://dev-dds-wvv-backend.herokuapp.com/
 tags:
 - name: Products API
   description: Products Controller
