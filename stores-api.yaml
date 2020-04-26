@@ -1,95 +1,554 @@
 openapi: 3.0.1
 info:
-  title: Stores API - !DRAFT!
-  description: API to access data of stores and other businesses. 
-  contact:
-    email: nicolai.schug@gmail.com
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 1.0.0
+  title: Stores API
+  description: API to find a store nearby.
+  version: "1.0"
 servers:
-- url: /
+- url: //dds-wvv-backend.herokuapp.com/
 tags:
+- name: Products API
+  description: Products Controller
 - name: Stores API
-  description: Everything about stores/businesses.
+  description: Stores Controller
+- name: basic-error-controller
+  description: Basic Error Controller
 paths:
-  /v1/stores:
+  /products/:
     get:
       tags:
-      - public
-      summary: Returns all stores or a subset, depending on parameters
-      description: |
-        Returns stores associated with the given neighborhood or if available, otherwise uses the given string as an address and searches within a 5 km radius for stores. If the given text cannot be resolved at all, returns all available stores. 
-      operationId: searchStores
+      - Products API
+      summary: get all products for one specific store
+      operationId: getProductsByStoreIdUsingGET
       parameters:
-      - name: neighborhood
+      - name: storeId
         in: query
-        description: A neighborhood e.g. Boxhagener Kiez or an address. 
+        description: storeId
+        required: true
+        allowEmptyValue: false
         schema:
           type: string
-      - name: limit
-        in: query
-        description: Maximum number of records to return
-        schema:
-          maximum: 50
-          minimum: 0
-          type: integer
-          format: int32
+        example: ddf24dc6-1a2d-4391-8f34-c5c322b21c1e
       responses:
         200:
-          description: search results matching criteria
+          description: ok
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/StoreItem'
-        400:
-          description: bad input parameter
+                  $ref: '#/components/schemas/Product'
+        500:
+          description: An unexpected error occurred
           content: {}
-  /v1/stores/{storeId}:
+      deprecated: false
+  /products/{id}:
     get:
       tags:
-      - public
-      summary: Find store by ID
-      description: Returns a single store object
-      operationId: getStoreById
+      - Products API
+      summary: get one specific product by ID
+      operationId: getProductByIdUsingGET
       parameters:
-      - name: storeId
+      - name: id
         in: path
-        description: ID of store to select
+        description: id
         required: true
         schema:
           type: string
-          format: uuid
+        example: 885dfe52-c401-42fd-bf8d-80d6b7c80dd2
       responses:
         200:
-          description: successful operation
+          description: ok
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StoreItem'
-        400:
-          description: Invalid ID supplied
+                $ref: '#/components/schemas/Product'
+        500:
+          description: An unexpected error occurred
           content: {}
-        404:
-          description: Store not found
+      deprecated: false
+  /products/{id}/images:
+    post:
+      tags:
+      - Products API
+      summary: Upload Product image
+      description: Uploads the given image to commercetools and adds it to the product
+      security: 
+        - basicAuth: []
+      parameters:
+      - name: id
+        in: path
+        description: id of the product
+        required: true
+        schema:
+          type: string
+        example: 885dfe52-c401-42fd-bf8d-80d6b7c80dd2
+      requestBody:
+        content:
+            # a binary file of type png or jpeg
+          'image/jpeg':
+            schema:
+              type: string
+              format: binary
+          'image/png':
+            schema:
+              type: string
+              format: binary        
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        500:
+          description: An unexpected error occurred
+          content: {}
+  /stores/:
+    get:
+      tags:
+      - Stores API
+      summary: get stores / or filter by query
+      operationId: getStoresByQueryUsingGET
+      parameters:
+      - name: neighborhood
+        in: query
+        description: id
+        allowEmptyValue: false
+        schema:
+          type: string
+        example: Neukölln
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Store'
+        500:
+          description: An unexpected error occurred
+          content: {}
+      deprecated: false
+    post:
+      tags:
+      - Stores API
+      summary: Create store
+      description: Creates a new store.
+      security: 
+        - basicAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreDraft'
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Store'
+        500:
+          description: An unexpected error occurred
+          content: {}
+      deprecated: false
+  /stores/{id}:
+    get:
+      tags:
+      - Stores API
+      summary: get a specific store by ID
+      operationId: getStoreByIdUsingGET
+      parameters:
+      - name: id
+        in: path
+        description: id
+        required: true
+        schema:
+          type: string
+        example: ddf24dc6-1a2d-4391-8f34-c5c322b21c1e
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Store'
+        500:
+          description: An unexpected error occurred
+          content: {}
+      deprecated: false
+  /stores/{id}/images:
+    post:
+      tags:
+      - Stores API
+      summary: Upload Store profile image
+      description: Uploads the given image to commercetools and replaces the profile or owner image
+      security: 
+        - basicAuth: []
+      parameters:
+      - name: id
+        in: path
+        description: id
+        required: true
+        schema:
+          type: string
+        example: ddf24dc6-1a2d-4391-8f34-c5c322b21c1e
+      - name: type
+        in: query
+        description: Type of image
+        required: true
+        schema:
+          type: string
+          enum:
+          - PROFILE
+          - OWNER
+        example: PROFILE
+      requestBody:
+        content:
+            # a binary file of type png or jpeg
+          'image/jpeg':
+            schema:
+              type: string
+              format: binary
+          'image/png':
+            schema:
+              type: string
+              format: binary        
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Store'
+  /stores/{id}/products:
+    post:
+      tags:
+      - Stores API
+      - Products API
+      summary: Create a new product for the store
+      security: 
+      - basicAuth: []
+      parameters:
+      - name: id
+        in: path
+        description: id
+        required: true
+        schema:
+          type: string
+        example: ddf24dc6-1a2d-4391-8f34-c5c322b21c1e
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductDraft'
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        500:
+          description: An unexpected error occurred
           content: {}
 components:
   schemas:
-    StoreItem:
-      required:
-      - id
-      - name
+    Address:
+      title: Address
       type: object
       properties:
+        city:
+          type: string
+        country:
+          type: string
+          description: Alpha-2
         id:
-          $ref: '#/components/schemas/Id'
+          type: string
+        postalCode:
+          type: string
+        region:
+          type: string
+        state:
+          type: string
+        streetName:
+          type: string
+        streetNumber:
+          type: string
+    Attribute:
+      title: Attribute
+      type: object
+      properties:
         name:
           type: string
-          example: grocery store          
-    Id:
-      type: string
-      format: uuid
-      example: d290f1ee-6c54-4b01-90e6-d701748f0851
+    GeoJSON:
+      title: GeoJSON
+      type: object
+      discriminator:
+        propertyName: type
+    Image:
+      title: Image
+      type: object
+      properties:
+        dimensions:
+          $ref: '#/components/schemas/ImageDimensions'
+        label:
+          type: string
+        url:
+          type: string
+    ImageDimensions:
+      title: ImageDimensions
+      type: object
+      properties:
+        h:
+          type: integer
+          format: int32
+        w:
+          type: integer
+          format: int32
+    Price:
+      title: Price
+      type: object
+      properties:
+        currencyCode:
+          type: string
+        value:
+          type: number
+    Product:
+      title: Product
+      type: object
+      properties:
+        description:
+          $ref: '#/components/schemas/LocalizedString'
+        id:
+          type: string
+        masterVariant:
+          $ref: '#/components/schemas/ProductVariant'
+        name:
+          $ref: '#/components/schemas/LocalizedString'
+        price:
+          $ref: '#/components/schemas/Price'
+        slug:
+          $ref: '#/components/schemas/LocalizedString'
+      example:
+        id: 6a19bf78-dce2-4830-845f-b029ada5472e
+        name:
+          de_DE: 2x kleine Hamamtücher 50x90cm
+        description:
+          de_DE: |-
+            Du bekommst 2x kleine Hamamtücher 50x90cm aus 100% Baumwolle perfekt im Bad oder Küche
+            Voraussichtliche Lieferung: ab sofort
+        slug:
+          en_US: 2-hamam-50-90cm-rot-weiss
+          de_DE: 2x-kleine-hamamtuecher-50x90cm
+        price:
+          value: 25
+          currencyCode: EUR
+        masterVariant:
+          assets: []
+          attributes: []
+          id: 1
+          images:
+          - url: https://7cbf5172f31e91cb7a5d-d8e96be60ea1fd7ad98fb07a482142ee.ssl.cf3.rackcdn.com/2-hamam-50-90cm-rot--q9KcG8UT.jpg
+            dimensions:
+              w: 566
+              h: 566
+            label: 2 Hamamtücher 50 x 90cm
+          key: 2-hamam-50-90cm-rot-weiss
+          sku: 2-hamam-50-90cm-rot-weiss
+    ProductDraft:
+      title: ProductDraft
+      type: object
+      properties:
+        description:
+          $ref: '#/components/schemas/LocalizedString'
+        name:
+          $ref: '#/components/schemas/LocalizedString'
+        price:
+          $ref: '#/components/schemas/Price'
+        slug:
+          $ref: '#/components/schemas/LocalizedString'
+      example:
+        name:
+          de_DE: 2x kleine Hamamtücher 50x90cm
+        description:
+          de_DE: |-
+            Du bekommst 2x kleine Hamamtücher 50x90cm aus 100% Baumwolle perfekt im Bad oder Küche
+            Voraussichtliche Lieferung: ab sofort
+        slug:
+          en_US: 2-hamam-50-90cm-rot-weiss
+          de_DE: 2x-kleine-hamamtuecher-50x90cm
+        price:
+          value: 25
+          currencyCode: EUR    
+    ProductVariant:
+      title: ProductVariant
+      type: object
+      properties:
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attribute'
+        id:
+          type: integer
+          format: int32
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/Image'
+        sku:
+          type: string
+    LocalizedString:
+      title: LocalizedString
+      type: object
+    Store:
+      allOf:
+      - $ref: '#/components/schemas/StoreDraft'
+      - title: Store
+        type: object
+        properties:
+          id:
+            type: string
+          published:
+            type: boolean
+        example:
+          id: c3d6517f-b285-4a9e-b650-345c850bb01c
+          name:
+            de_DE: Agas Own 2
+          description:
+            de_DE: "\"Agas Own 2\" in Berlin Kreuzberg am Südstern. Erlebe einen Traum\
+              \ von Vielfalt aus dem Raum Asien im Bereich: Wohnaccessoires, ein Raum\
+              \ der Begegnung. \n\nHallo liebe Leute, Ihr seid auf mein bereits bestehendes\
+              \ Projekt/Ladengeschäft aufmerksam geworden. Ich betreibe seit über einem\
+              \ Jahr in Berlin-Kreuzberg am Südstern ein Ladengeschäft für Wohnaccessoires\
+              \ aus der Türkei, Thailand, Indonesien, Indien. Ich wohne selber seit\
+              \ einigen Jahren in der Körtestraße. Deshalb liegen mir als gebürtigem\
+              \ Berliner und Kreuzberger der Zusammenhalt im Kiez, der Austausch von\
+              \ Anliegen und die Mitmenschen, die ich in meinem Geschäft täglich antreffe,\
+              \ am Herzen."
+          address:
+            country: DE
+            streetName: Körtestraße
+            streetNumber: "34"
+            postalCode: "10967"
+            city: Berlin
+            state: ""
+          neighborhood:
+          - Kreuzberg
+          - Neukölln
+          - Körtekiez
+          geoLocation:
+            type: Point
+            coordinates:
+            - 13.408134
+            - 52.489908
+          profileImageURL: https://7cbf5172f31e91cb7a5d-d8e96be60ea1fd7ad98fb07a482142ee.ssl.cf3.rackcdn.com/store-front-X8l4AvUY.jpg
+          profileVideoURL: https://youtu.be/PBkb2mzbqKE
+          shopOwnerImage: https://drive.google.com/file/d/1Ls5Yjc760oEfnibC9Xv29OtALtmV_Ss4/view?usp=sharing
+          shopOwnerName: Oskar Fleer
+          phone: 030 98388469
+          homepage: https://www.startnext.com/agas-own-2
+    StoreDraft:
+      title: StoreDraft
+      type: object
+      properties:
+        address:
+          $ref: '#/components/schemas/Address'
+        contact:
+          type: string
+          deprecated: true
+        description:
+          $ref: '#/components/schemas/LocalizedString'
+        email:
+          type: string
+        geoLocation:
+          $ref: '#/components/schemas/GeoJSON'
+        homepage:
+          type: string
+        name:
+          $ref: '#/components/schemas/LocalizedString'
+        neighborhood:
+          type: array
+          items:
+            type: string
+        shopCategory:
+          type: string
+        phone:
+          type: string
+        contactWhatsapp:
+          type: string
+        contactInstagram:
+          type: string
+        contactFacebook:
+          type: string
+        contactFacetime:
+          type: string
+        contactSkype:
+          type: string
+        contactTwitter:
+          type: string
+        profileImageURL:
+          type: string
+        profileVideoURL:
+          type: string
+        hasDelivery:
+          type: boolean
+        hasPickup:
+          type: boolean
+        hasShipping:
+          type: boolean
+        shopOwnerImage:
+          type: string
+        shopOwnerName:
+          type: string
+        shopOwnerPhone:
+          type: string
+          description: Only used internally and MUST not be used in the frontend
+        shopOwnerEmail:
+          type: string
+          description: Only used internally and MUST not be used in the frontend
+        numberOfEmployees:
+          type: number
+          format: int32
+          description: Only used internally and MUST not be used in the frontend
+      example:
+        name:
+          de_DE: Agas Own 2
+        description:
+          de_DE: "\"Agas Own 2\" in Berlin Kreuzberg am Südstern. Erlebe einen Traum\
+            \ von Vielfalt aus dem Raum Asien im Bereich: Wohnaccessoires, ein Raum\
+            \ der Begegnung. \n\nHallo liebe Leute, Ihr seid auf mein bereits bestehendes\
+            \ Projekt/Ladengeschäft aufmerksam geworden. Ich betreibe seit über einem\
+            \ Jahr in Berlin-Kreuzberg am Südstern ein Ladengeschäft für Wohnaccessoires\
+            \ aus der Türkei, Thailand, Indonesien, Indien. Ich wohne selber seit\
+            \ einigen Jahren in der Körtestraße. Deshalb liegen mir als gebürtigem\
+            \ Berliner und Kreuzberger der Zusammenhalt im Kiez, der Austausch von\
+            \ Anliegen und die Mitmenschen, die ich in meinem Geschäft täglich antreffe,\
+            \ am Herzen."
+        address:
+          country: DE
+          streetName: Körtestraße
+          streetNumber: "34"
+          postalCode: "10967"
+          city: Berlin
+          state: ""
+        neighborhood:
+        - Kreuzberg
+        - Neukölln
+        - Körtekiez
+        geoLocation:
+          type: Point
+          coordinates:
+          - 13.408134
+          - 52.489908
+        profileImageURL: https://7cbf5172f31e91cb7a5d-d8e96be60ea1fd7ad98fb07a482142ee.ssl.cf3.rackcdn.com/store-front-X8l4AvUY.jpg
+        profileVideoURL: https://youtu.be/PBkb2mzbqKE
+        shopOwnerImage: https://drive.google.com/file/d/1Ls5Yjc760oEfnibC9Xv29OtALtmV_Ss4/view?usp=sharing
+        shopOwnerName: Oskar Fleer
+        phone: 030 98388469
+        homepage: https://www.startnext.com/agas-own-2
+  securitySchemes:
+    basicAuth:     # <-- arbitrary name for the security scheme
+      type: http
+      scheme: basic
