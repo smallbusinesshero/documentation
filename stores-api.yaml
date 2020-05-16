@@ -454,6 +454,7 @@ components:
           type: array
           items:
             type: string
+          deprecated: true
         shopCategory:
           type: string
         phone:
@@ -524,10 +525,6 @@ components:
           postalCode: "10967"
           city: Berlin
           state: ""
-        neighborhood:
-        - Kreuzberg
-        - Neukölln
-        - Körtekiez
         geoLocation:
           type: Point
           coordinates:
@@ -550,10 +547,6 @@ components:
           $ref: '#/components/schemas/LocalizedString'
         name:
           $ref: '#/components/schemas/LocalizedString'
-        neighborhood:
-          type: array
-          items:
-            type: string
         shopCategory:
           type: string
         contactEmail:
@@ -617,10 +610,6 @@ components:
           postalCode: "10967"
           city: Berlin
           state: ""
-        neighborhood:
-        - Kreuzberg
-        - Neukölln
-        - Körtekiez
         profileVideoURL: https://youtu.be/PBkb2mzbqKE
         shopOwnerFirstName: Oskar
         shopOwnerLastName: Fleer
