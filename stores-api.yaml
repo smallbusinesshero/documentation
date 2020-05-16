@@ -65,43 +65,6 @@ paths:
           description: An unexpected error occurred
           content: {}
       deprecated: false
-  /products/{id}/images:
-    post:
-      tags:
-      - Products API
-      summary: Upload Product image
-      description: Uploads the given image to commercetools and adds it to the product
-      security: 
-        - basicAuth: []
-      parameters:
-      - name: id
-        in: path
-        description: id of the product
-        required: true
-        schema:
-          type: string
-        example: 885dfe52-c401-42fd-bf8d-80d6b7c80dd2
-      requestBody:
-        content:
-            # a binary file of type png or jpeg
-          'image/jpeg':
-            schema:
-              type: string
-              format: binary
-          'image/png':
-            schema:
-              type: string
-              format: binary        
-      responses:
-        200:
-          description: ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Product'
-        500:
-          description: An unexpected error occurred
-          content: {}
   /stores/:
     get:
       tags:
@@ -153,12 +116,11 @@ paths:
                 profileImageURL:
                   type: string
                   format: binary
-            encoding: # The same level as schema
-              shopOwnerImage: # Property name (see above)
+            encoding:
+              shopOwnerImage:
                 contentType: image/png, image/jpeg
-          application/json:
-            schema:
-              $ref: '#/components/schemas/StoreDraft'
+              profileImageURL:
+                contentType: image/png, image/jpeg
       responses:
         200:
           description: ok
@@ -195,50 +157,6 @@ paths:
           description: An unexpected error occurred
           content: {}
       deprecated: false
-  /stores/{id}/images:
-    post:
-      tags:
-      - Stores API
-      summary: Upload Store profile image
-      description: Uploads the given image to commercetools and replaces the profile or owner image
-      security: 
-        - basicAuth: []
-      parameters:
-      - name: id
-        in: path
-        description: id
-        required: true
-        schema:
-          type: string
-        example: ddf24dc6-1a2d-4391-8f34-c5c322b21c1e
-      - name: type
-        in: query
-        description: Type of image
-        required: true
-        schema:
-          type: string
-          enum:
-          - PROFILE
-          - OWNER
-        example: PROFILE
-      requestBody:
-        content:
-            # a binary file of type png or jpeg
-          'image/jpeg':
-            schema:
-              type: string
-              format: binary
-          'image/png':
-            schema:
-              type: string
-              format: binary        
-      responses:
-        200:
-          description: ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Store'
   /stores/{id}/products:
     post:
       tags:
@@ -257,9 +175,18 @@ paths:
         example: ddf24dc6-1a2d-4391-8f34-c5c322b21c1e
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ProductDraft'
+              type: object
+              properties:
+                productData:
+                  $ref: '#/components/schemas/ProductDraft'
+                productImage:
+                  type: string
+                  format: binary
+            encoding:
+              productImage:
+                contentType: image/png, image/jpeg
       responses:
         200:
           description: ok
