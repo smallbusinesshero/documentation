@@ -141,6 +141,21 @@ paths:
         - basicAuth: []
       requestBody:
         content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                storeData:
+                  $ref: '#/components/schemas/StoreDraft'
+                shopOwnerImage:
+                  type: string
+                  format: binary
+                profileImageURL:
+                  type: string
+                  format: binary
+            encoding: # The same level as schema
+              shopOwnerImage: # Property name (see above)
+                contentType: image/png, image/jpeg
           application/json:
             schema:
               $ref: '#/components/schemas/StoreDraft'
