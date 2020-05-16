@@ -65,43 +65,6 @@ paths:
           description: An unexpected error occurred
           content: {}
       deprecated: false
-  /products/{id}/images:
-    post:
-      tags:
-      - Products API
-      summary: Upload Product image
-      description: Uploads the given image to commercetools and adds it to the product
-      security: 
-        - basicAuth: []
-      parameters:
-      - name: id
-        in: path
-        description: id of the product
-        required: true
-        schema:
-          type: string
-        example: 885dfe52-c401-42fd-bf8d-80d6b7c80dd2
-      requestBody:
-        content:
-            # a binary file of type png or jpeg
-          'image/jpeg':
-            schema:
-              type: string
-              format: binary
-          'image/png':
-            schema:
-              type: string
-              format: binary        
-      responses:
-        200:
-          description: ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Product'
-        500:
-          description: An unexpected error occurred
-          content: {}
   /stores/:
     get:
       tags:
@@ -141,9 +104,23 @@ paths:
         - basicAuth: []
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/StoreDraft'
+              type: object
+              properties:
+                storeData:
+                  $ref: '#/components/schemas/StoreDraft'
+                shopOwnerImage:
+                  type: string
+                  format: binary
+                profileImageURL:
+                  type: string
+                  format: binary
+            encoding:
+              shopOwnerImage:
+                contentType: image/png, image/jpeg
+              profileImageURL:
+                contentType: image/png, image/jpeg
       responses:
         200:
           description: ok
@@ -180,50 +157,6 @@ paths:
           description: An unexpected error occurred
           content: {}
       deprecated: false
-  /stores/{id}/images:
-    post:
-      tags:
-      - Stores API
-      summary: Upload Store profile image
-      description: Uploads the given image to commercetools and replaces the profile or owner image
-      security: 
-        - basicAuth: []
-      parameters:
-      - name: id
-        in: path
-        description: id
-        required: true
-        schema:
-          type: string
-        example: ddf24dc6-1a2d-4391-8f34-c5c322b21c1e
-      - name: type
-        in: query
-        description: Type of image
-        required: true
-        schema:
-          type: string
-          enum:
-          - PROFILE
-          - OWNER
-        example: PROFILE
-      requestBody:
-        content:
-            # a binary file of type png or jpeg
-          'image/jpeg':
-            schema:
-              type: string
-              format: binary
-          'image/png':
-            schema:
-              type: string
-              format: binary        
-      responses:
-        200:
-          description: ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Store'
   /stores/{id}/products:
     post:
       tags:
@@ -242,9 +175,18 @@ paths:
         example: ddf24dc6-1a2d-4391-8f34-c5c322b21c1e
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ProductDraft'
+              type: object
+              properties:
+                productData:
+                  $ref: '#/components/schemas/ProductDraft'
+                productImage:
+                  type: string
+                  format: binary
+            encoding:
+              productImage:
+                contentType: image/png, image/jpeg
       responses:
         200:
           description: ok
@@ -440,20 +382,33 @@ components:
           $ref: '#/components/schemas/LocalizedString'
         email:
           type: string
+          deprecated: true
+          description: Use contactEmail instead
         geoLocation:
           $ref: '#/components/schemas/GeoJSON'
         homepage:
           type: string
+          deprecated: true
+          description: Use contactHomepage instead
         name:
           $ref: '#/components/schemas/LocalizedString'
         neighborhood:
           type: array
           items:
             type: string
+          deprecated: true
         shopCategory:
           type: string
         phone:
           type: string
+          deprecated: true
+          description: Use contactPhone instead
+        contactEmail:
+          type: string
+        contactPhone:
+          type: string
+        contactHomepage:
+          type: string  
         contactWhatsapp:
           type: string
         contactInstagram:
@@ -479,6 +434,12 @@ components:
         shopOwnerImage:
           type: string
         shopOwnerName:
+          type: string
+          deprecated: true
+          description: Use shopOwnerFirstName/shopOwnerLastName isntead
+        shopOwnerFirstName:
+          type: string
+        shopOwnerLastName:
           type: string
         id:
           type: string
@@ -506,10 +467,6 @@ components:
           postalCode: "10967"
           city: Berlin
           state: ""
-        neighborhood:
-        - Kreuzberg
-        - Neukölln
-        - Körtekiez
         geoLocation:
           type: Point
           coordinates:
@@ -518,35 +475,27 @@ components:
         profileImageURL: https://7cbf5172f31e91cb7a5d-d8e96be60ea1fd7ad98fb07a482142ee.ssl.cf3.rackcdn.com/store-front-X8l4AvUY.jpg
         profileVideoURL: https://youtu.be/PBkb2mzbqKE
         shopOwnerImage: https://drive.google.com/file/d/1Ls5Yjc760oEfnibC9Xv29OtALtmV_Ss4/view?usp=sharing
-        shopOwnerName: Oskar Fleer
-        phone: 030 98388469
-        homepage: https://www.startnext.com/agas-own-2
+        shopOwnerFirstName: Oskar
+        shopOwnerLastName: Fleer
+        contactPhone: 030 98388469
+        contactHomepage: https://www.startnext.com/agas-own-2
     StoreDraft:
       title: StoreDraft
       type: object
       properties:
         address:
           $ref: '#/components/schemas/Address'
-        contact:
-          type: string
-          deprecated: true
         description:
           $ref: '#/components/schemas/LocalizedString'
-        email:
-          type: string
-        geoLocation:
-          $ref: '#/components/schemas/GeoJSON'
-        homepage:
-          type: string
         name:
           $ref: '#/components/schemas/LocalizedString'
-        neighborhood:
-          type: array
-          items:
-            type: string
         shopCategory:
           type: string
-        phone:
+        contactEmail:
+          type: string
+        contactHomepage:
+          type: string
+        contactPhone:
           type: string
         contactWhatsapp:
           type: string
@@ -560,8 +509,6 @@ components:
           type: string
         contactTwitter:
           type: string
-        profileImageURL:
-          type: string
         profileVideoURL:
           type: string
         hasDelivery:
@@ -570,9 +517,9 @@ components:
           type: boolean
         hasShipping:
           type: boolean
-        shopOwnerImage:
+        shopOwnerFirstName:
           type: string
-        shopOwnerName:
+        shopOwnerLastName:
           type: string
         shopOwnerPhone:
           type: string
@@ -605,21 +552,11 @@ components:
           postalCode: "10967"
           city: Berlin
           state: ""
-        neighborhood:
-        - Kreuzberg
-        - Neukölln
-        - Körtekiez
-        geoLocation:
-          type: Point
-          coordinates:
-          - 13.408134
-          - 52.489908
-        profileImageURL: https://7cbf5172f31e91cb7a5d-d8e96be60ea1fd7ad98fb07a482142ee.ssl.cf3.rackcdn.com/store-front-X8l4AvUY.jpg
         profileVideoURL: https://youtu.be/PBkb2mzbqKE
-        shopOwnerImage: https://drive.google.com/file/d/1Ls5Yjc760oEfnibC9Xv29OtALtmV_Ss4/view?usp=sharing
-        shopOwnerName: Oskar Fleer
-        phone: 030 98388469
-        homepage: https://www.startnext.com/agas-own-2
+        shopOwnerFirstName: Oskar
+        shopOwnerLastName: Fleer
+        contactPhone: 030 98388469
+        contactHomepage: https://www.startnext.com/agas-own-2
   securitySchemes:
     basicAuth:     # <-- arbitrary name for the security scheme
       type: http
