@@ -440,10 +440,14 @@ components:
           $ref: '#/components/schemas/LocalizedString'
         email:
           type: string
+          deprecated: true
+          description: Use contactEmail instead
         geoLocation:
           $ref: '#/components/schemas/GeoJSON'
         homepage:
           type: string
+          deprecated: true
+          description: Use contactHomepage instead
         name:
           $ref: '#/components/schemas/LocalizedString'
         neighborhood:
@@ -454,6 +458,14 @@ components:
           type: string
         phone:
           type: string
+          deprecated: true
+          description: Use contactPhone instead
+        contactEmail:
+          type: string
+        contactPhone:
+          type: string
+        contactHomepage:
+          type: string  
         contactWhatsapp:
           type: string
         contactInstagram:
@@ -479,6 +491,12 @@ components:
         shopOwnerImage:
           type: string
         shopOwnerName:
+          type: string
+          deprecated: true
+          description: Use shopOwnerFirstName/shopOwnerLastName isntead
+        shopOwnerFirstName:
+          type: string
+        shopOwnerLastName:
           type: string
         id:
           type: string
@@ -518,26 +536,18 @@ components:
         profileImageURL: https://7cbf5172f31e91cb7a5d-d8e96be60ea1fd7ad98fb07a482142ee.ssl.cf3.rackcdn.com/store-front-X8l4AvUY.jpg
         profileVideoURL: https://youtu.be/PBkb2mzbqKE
         shopOwnerImage: https://drive.google.com/file/d/1Ls5Yjc760oEfnibC9Xv29OtALtmV_Ss4/view?usp=sharing
-        shopOwnerName: Oskar Fleer
-        phone: 030 98388469
-        homepage: https://www.startnext.com/agas-own-2
+        shopOwnerFirstName: Oskar
+        shopOwnerLastName: Fleer
+        contactPhone: 030 98388469
+        contactHomepage: https://www.startnext.com/agas-own-2
     StoreDraft:
       title: StoreDraft
       type: object
       properties:
         address:
           $ref: '#/components/schemas/Address'
-        contact:
-          type: string
-          deprecated: true
         description:
           $ref: '#/components/schemas/LocalizedString'
-        email:
-          type: string
-        geoLocation:
-          $ref: '#/components/schemas/GeoJSON'
-        homepage:
-          type: string
         name:
           $ref: '#/components/schemas/LocalizedString'
         neighborhood:
@@ -546,7 +556,11 @@ components:
             type: string
         shopCategory:
           type: string
-        phone:
+        contactEmail:
+          type: string
+        contactHomepage:
+          type: string
+        contactPhone:
           type: string
         contactWhatsapp:
           type: string
@@ -560,8 +574,6 @@ components:
           type: string
         contactTwitter:
           type: string
-        profileImageURL:
-          type: string
         profileVideoURL:
           type: string
         hasDelivery:
@@ -570,9 +582,9 @@ components:
           type: boolean
         hasShipping:
           type: boolean
-        shopOwnerImage:
+        shopOwnerFirstName:
           type: string
-        shopOwnerName:
+        shopOwnerLastName:
           type: string
         shopOwnerPhone:
           type: string
@@ -609,17 +621,11 @@ components:
         - Kreuzberg
         - Neukölln
         - Körtekiez
-        geoLocation:
-          type: Point
-          coordinates:
-          - 13.408134
-          - 52.489908
-        profileImageURL: https://7cbf5172f31e91cb7a5d-d8e96be60ea1fd7ad98fb07a482142ee.ssl.cf3.rackcdn.com/store-front-X8l4AvUY.jpg
         profileVideoURL: https://youtu.be/PBkb2mzbqKE
-        shopOwnerImage: https://drive.google.com/file/d/1Ls5Yjc760oEfnibC9Xv29OtALtmV_Ss4/view?usp=sharing
-        shopOwnerName: Oskar Fleer
-        phone: 030 98388469
-        homepage: https://www.startnext.com/agas-own-2
+        shopOwnerFirstName: Oskar
+        shopOwnerLastName: Fleer
+        contactPhone: 030 98388469
+        contactHomepage: https://www.startnext.com/agas-own-2
   securitySchemes:
     basicAuth:     # <-- arbitrary name for the security scheme
       type: http
